@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAS Carrier NAC Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  :root {
+    --bg:        #0f1117;
+    --surface:   #181c27;
+    --surface2:  #1e2333;
+    --border:    rgba(255,255,255,0.08);
+    --border2:   rgba(255,255,255,0.14);
+    --text:      #e8eaf0;
+    --muted:     #8890a4;
+    --accent:    #3b82f6;
+    --accent-lt: rgba(59,130,246,0.12);
+    --green:     #22c55e;
+    --green-lt:  rgba(34,197,94,0.12);
+    --amber:     #f59e0b;
+    --amber-lt:  rgba(245,158,11,0.12);
+    --red:       #ef4444;
+    --red-lt:    rgba(239,68,68,0.12);
+
+    --cma:       #4a9eff;
+    --cma-lt:    rgba(74,158,255,0.10);
+    --hapag:     #f97316;
+    --hapag-lt:  rgba(249,115,22,0.10);
+    --msc:       #a78bfa;
+    --msc-lt:    rgba(167,139,250,0.10);
+    --one:       #34d399;
+    --one-lt:    rgba(52,211,153,0.10);
+
+    --radius:    10px;
+    --radius-lg: 14px;
+    --mono:      'DM Mono', monospace;
+    --sans:      'Sora', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Header ── */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(15,17,23,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+  .header-logo .dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .header-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    gap: 20px;
+  }
+  .header-meta span { display: flex; align-items: center; gap: 5px; }
+  .header-meta .pill {
+    background: var(--green-lt);
+    color: var(--green);
+    border: 1px solid rgba(34,197,94,0.2);
+    border-radius: 20px;
+    padding: 1px 8px;
+    font-size: 10px;
+  }
+
+  /* ── Main layout ── */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+  }
+
+  /* ── Search panel ── */
+  .search-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .search-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .info-icon {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .search-row {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr 140px;
+    gap: 10px;
+    align-items: end;
+  }
+  .field-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  select {
+    width: 100%;
+    height: 42px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    padding: 0 12px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238890a4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  select:hover { border-color: rgba(255,255,255,0.25); }
+  select:focus { outline: none; border-color: var(--accent); }
+  select option { background: #1e2333; }
+
+  .arrow-col {
+    height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-size: 18px;
+    padding-bottom: 0;
+  }
+
+  .search-btn {
+    height: 42px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    display: flex; align-items: center; justify-content: center;
+    gap: 7px;
+    letter-spacing: 0.02em;
+  }
+  .search-btn:hover  { background: #2563eb; }
+  .search-btn:active { transform: scale(0.98); }
+
+  /* ── Results header ── */
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .route-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .route-title .sep { color: var(--muted); font-weight: 300; margin: 0 6px; }
+  .carrier-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--accent-lt);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 20px;
+    padding: 3px 12px;
+  }
+
+  /* ── Controls bar ── */
+  .controls-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .ctrl-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-right: 2px;
+  }
+  .ctrl-btn {
+    height: 30px;
+    padding: 0 14px;
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .ctrl-btn:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
+  .ctrl-btn.active {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--bg);
+    font-weight: 600;
+  }
+  .ctrl-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+
+  /* ── Carrier cards ── */
+  .card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .card:hover { border-color: var(--border2); }
+  .card.lowest { border-color: rgba(34,197,94,0.3); }
+
+  .card-header {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+  }
+  .carrier-info { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .carrier-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .lowest-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    background: var(--green-lt);
+    color: var(--green);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 20px;
+    padding: 2px 9px;
+  }
+  .expired-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: var(--red-lt);
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 20px;
+    padding: 2px 9px;
+  }
+
+  .route-path {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .route-node {
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 9px;
+    color: var(--text);
+  }
+  .route-arrow { color: var(--muted); font-size: 12px; }
+
+  .verify-link {
+    font-size: 12px;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    padding: 5px 12px;
+    border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 8px;
+    transition: all 0.15s;
+  }
+  .verify-link:hover { background: var(--accent-lt); border-color: var(--accent); }
+  .verify-icon { font-size: 11px; }
+
+  /* ── Rate block ── */
+  .rate-block {
+    border-top: 1px solid var(--border);
+    padding: 14px 18px;
+  }
+  .rate-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) 1fr;
+    gap: 12px;
+    align-items: start;
+    margin-bottom: 12px;
+  }
+  .rate-cell { text-align: center; }
+  .rate-size {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+  }
+  .rate-amount {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-family: var(--mono);
+  }
+  .rate-amount.highlight { color: var(--accent); }
+  .rate-sub {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .rate-meta {
+    text-align: right;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+    font-family: var(--mono);
+  }
+  .rate-meta strong { color: var(--text); font-size: 10px; display: block; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+
+  /* ── Surcharge row ── */
+  .surcharge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .surge-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 2px;
+  }
+  .surge-tag {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-family: var(--mono);
+  }
+  .surge-tag.add {
+    background: var(--amber-lt);
+    color: var(--amber);
+    border: 1px solid rgba(245,158,11,0.2);
+  }
+  .surge-tag.inc {
+    background: var(--green-lt);
+    color: var(--green);
+    border: 1px solid rgba(34,197,94,0.2);
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+  }
+  .empty-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+  .empty-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--text); opacity: 0.6; }
+  .empty-sub { font-size: 13px; }
+
+  /* ── Carrier color accents ── */
+  .card[data-carrier="CMA CGM"]     .card-header { background: var(--cma-lt); }
+  .card[data-carrier="Hapag-Lloyd"] .card-header { background: var(--hapag-lt); }
+  .card[data-carrier="MSC"]         .card-header { background: var(--msc-lt); }
+  .card[data-carrier="ONE"]         .card-header { background: var(--one-lt); }
+
+  .card[data-carrier="CMA CGM"]     .carrier-name { color: var(--cma); }
+  .card[data-carrier="Hapag-Lloyd"] .carrier-name { color: var(--hapag); }
+  .card[data-carrier="MSC"]         .carrier-name { color: var(--msc); }
+  .card[data-carrier="ONE"]         .carrier-name { color: var(--one); }
+
+  /* ── Update banner ── */
+  .update-banner {
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .update-banner code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text);
+  }
+
+  /* ── Footer ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card { animation: fadeIn 0.2s ease both; }
+  .card:nth-child(1) { animation-delay: 0.04s; }
+  .card:nth-child(2) { animation-delay: 0.08s; }
+  .card:nth-child(3) { animation-delay: 0.12s; }
+  .card:nth-child(4) { animation-delay: 0.16s; }
+
+  @media (max-width: 700px) {
+    .search-row { grid-template-columns: 1fr 30px 1fr; }
+    .search-btn { display: none; }
+    .rate-grid  { grid-template-columns: repeat(3, 1fr); }
+    .rate-meta  { display: none; }
+    .header-meta .pipe { display: none; }
+  }
+
+
+  /* ── Loading / error states ── */
+  .loading-overlay {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 3rem; gap: 16px; color: var(--muted);
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 13px; }
+  .error-box {
+    background: var(--red-lt);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    font-size: 13px;
+    color: var(--red);
+    margin-bottom: 1rem;
+  }
+  .error-box code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: rgba(239,68,68,0.15);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .config-banner {
+    background: var(--amber-lt);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 13px;
+    color: var(--amber);
+    line-height: 1.7;
+  }
+  .config-banner strong { color: #fbbf24; }
+  .config-banner code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: rgba(245,158,11,0.15);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .live-badge {
+    display: flex; align-items: center; gap: 5px;
+    font-family: var(--mono); font-size: 10px;
+    color: var(--green);
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+  }
+  .data-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    display: flex; gap: 16px; align-items: center;
+    margin-bottom: 1rem;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">
+    <div class="dot"></div>
+    JAS Carrier NAC Comparison
+  </div>
+  <div class="header-meta">
+    <span><span class="pill">NAC ONLY</span></span>
+    <span id="hdr-count">Loading…</span>
+    <span id="hdr-live" class="live-badge" style="display:none">
+      <span class="live-dot"></span> LIVE
+    </span>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- ── CONFIG BANNER (shown until Web App URL is set) ── -->
+  <div class="config-banner" id="config-banner" style="display:none">
+    <strong>⚙ Setup required:</strong> Paste your Google Apps Script Web App URL into this file.<br>
+    Open the HTML in a text editor, find <code>APPS_SCRIPT_URL</code> near the top of the
+    <code>&lt;script&gt;</code> block, and replace the placeholder with your deployment URL.<br>
+    The URL must look like: <code>https://script.google.com/macros/s/ABC…xyz/exec</code><br>
+    <strong>⚠ Important:</strong> Make sure "Who has access" is set to <strong>Anyone</strong> (not "Anyone in your domain") when deploying.
+  </div>
+
+  <!-- ── ERROR BOX ── -->
+  <div class="error-box" id="error-box" style="display:none"></div>
+
+  <!-- ── DATA META BAR (shown after load) ── -->
+  <div class="data-meta" id="data-meta" style="display:none">
+    <span id="meta-rates"></span>
+    <span id="meta-carriers"></span>
+    <span id="meta-updated"></span>
+    <span style="margin-left:auto">
+      <button onclick="refreshData()" style="
+        background:transparent; border:1px solid var(--border2);
+        border-radius:6px; color:var(--muted); font-family:var(--mono);
+        font-size:10px; padding:3px 10px; cursor:pointer;">
+        ↻ Refresh
+      </button>
+    </span>
+  </div>
+
+  <!-- ── UPDATE BANNER ── -->
+  <div class="update-banner">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0">
+      <path d="M8 1.5A6.5 6.5 0 1 0 14.5 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M11 1l3.5 3L11 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Rates are live from Google Sheets. To update: edit the carrier tabs in the sheet — changes reflect immediately on next load or Refresh.
+    &nbsp; Contracts: &nbsp;
+    <code>YJASB0000009</code> &nbsp;
+    <code>S26NGN086</code> &nbsp;
+    <code>R83626040012094</code> &nbsp;
+    <code>GCM0002N26</code>
+  </div>
+
+  <!-- ── SEARCH PANEL ── -->
+  <div class="search-panel">
+    <div class="search-info">
+      <div class="info-icon">i</div>
+      NAC rates only. Includes base freight. Surcharges (BAF, EFS, PSS, ISPS) apply on top — shown per carrier. Click verify links to confirm rates on carrier portals.
+    </div>
+    <div class="search-row">
+      <div class="field-group">
+        <label>Origin port</label>
+        <select id="sel-origin">
+          <option value="">— loading… —</option>
+        </select>
+      </div>
+      <div class="arrow-col">→</div>
+      <div class="field-group">
+        <label>Destination CY</label>
+        <select id="sel-dest">
+          <option value="">— loading… —</option>
+        </select>
+      </div>
+      <button class="search-btn" onclick="doSearch()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <circle cx="6.5" cy="6.5" r="4.5" stroke="white" stroke-width="1.5"/>
+          <path d="M10 10l3 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Search
+      </button>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ── -->
+  <div id="results-area">
+    <div class="loading-overlay" id="initial-loader">
+      <div class="spinner"></div>
+      <div class="loading-text">Fetching live rates from Google Sheets…</div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>JAS Forwarding Worldwide — Internal Use Only</span>
+  <span>NAC rates only · Base freight isolated · Surcharges variable</span>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// CONFIGURATION — paste your Apps Script Web App URL here
+// ════════════════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJpQtyZcuR-KJMZzc_kDqsFiZn0_bkt7HIRXF5blyb_uszeJLxsd05thUByrcT8A3pAQ/exec";
+const SECRET_KEY      = "alexander";
+// ════════════════════════════════════════════════════════════════
+
+let RATES      = [];
+let SURCHARGES = [];
+let ORIGINS    = [];
+let DESTS      = [];
+let SURGE_TOTALS   = {};
+let INCLUDED_CODES = {};
+let ADDITIONAL_SURGES = {};
+
+let sortMode   = 'rate';
+let equip      = 'r40hc';
+let lastOrigin = '';
+let lastDest   = '';
+
+// ── Bootstrap ────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "") {
+    document.getElementById('config-banner').style.display = 'block';
+    document.getElementById('initial-loader').innerHTML =
+      '<div style="color:var(--muted);font-size:13px">⚙ Configure the Apps Script URL above to load live data.</div>';
+    populateSelects([], []);
+    return;
+  }
+  fetchData();
+});
+
+// ── Fetch from Apps Script ────────────────────────────────────
+async function fetchData() {
+  showLoader();
+  try {
+    const url  = `${APPS_SCRIPT_URL}?key=${SECRET_KEY}`;
+    const resp = await fetch(url, {
+      method: 'GET',
+      redirect: 'follow',
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} — ${resp.statusText}`);
+    const text = await resp.text();
+    let json;
+    try { json = JSON.parse(text); }
+    catch(e) { throw new Error('Response was not valid JSON. The Apps Script may need to be redeployed.'); }
+    if (json.error) throw new Error(json.error);
+    ingestData(json);
+  } catch (err) {
+    hideLoader();
+    const isDomainRestricted = APPS_SCRIPT_URL.includes('/a/macros/');
+    showError(
+      `<strong>Failed to load rates:</strong> ${err.message}` +
+      (isDomainRestricted
+        ? `<br><br><strong>⚠ Domain-restricted URL detected.</strong> Your Apps Script URL contains <code>/a/macros/booksmarthq.io/</code> which requires Google Workspace authentication. ` +
+          `To fix this, redeploy the Apps Script with a standard (non-workspace) deployment:<br>` +
+          `<ol style="margin:8px 0 0 16px;line-height:2">` +
+          `<li>In Apps Script, click <strong>Deploy → New deployment</strong></li>` +
+          `<li>Select type: <strong>Web app</strong></li>` +
+          `<li>Execute as: <strong>Me</strong></li>` +
+          `<li>Who has access: <strong>Anyone</strong> (not "Anyone in booksmarthq.io")</li>` +
+          `<li>Deploy and copy the new URL — it will contain <code>/macros/s/</code> not <code>/a/macros/</code></li>` +
+          `</ol>`
+        : `<br>Check that the Apps Script is deployed correctly and "Who has access" is set to <strong>Anyone</strong>.`)
+    );
+  }
+}
+
+async function refreshData() {
+  document.getElementById('data-meta').style.display = 'none';
+  fetchData();
+  // Re-run last search after refresh
+  if (lastOrigin && lastDest) {
+    setTimeout(() => renderResults(lastOrigin, lastDest), 1200);
+  }
+}
+
+// ── Ingest + index data ───────────────────────────────────────
+function ingestData(json) {
+  RATES      = json.rates      || [];
+  SURCHARGES = json.surcharges || [];
+  ORIGINS    = json.origins    || [];
+  DESTS      = json.dests      || [];
+
+  // Build surcharge indexes
+  SURGE_TOTALS      = {};
+  INCLUDED_CODES    = {};
+  ADDITIONAL_SURGES = {};
+
+  SURCHARGES.forEach(s => {
+    const c = s.carrier;
+    if (!SURGE_TOTALS[c])      SURGE_TOTALS[c]      = {20: 0, 40: 0, '40hc': 0};
+    if (!INCLUDED_CODES[c])    INCLUDED_CODES[c]    = [];
+    if (!ADDITIONAL_SURGES[c]) ADDITIONAL_SURGES[c] = [];
+
+    if (s.classification === 'ADDITIONAL' || s.classification === 'ADDL Per BL') {
+      SURGE_TOTALS[c][20]     += s.a20   || 0;
+      SURGE_TOTALS[c][40]     += s.a40   || 0;
+      SURGE_TOTALS[c]['40hc'] += s.a40hc || 0;
+      ADDITIONAL_SURGES[c].push({ code: s.code, desc: s.desc });
+    } else if (s.classification === 'INCLUDED') {
+      INCLUDED_CODES[c].push(s.code);
+    }
+  });
+
+  // Update UI
+  populateSelects(ORIGINS, DESTS);
+  updateMetaBar(json);
+  hideLoader();
+
+  // Re-run previous search if one was active
+  if (lastOrigin && lastDest) renderResults(lastOrigin, lastDest);
+}
+
+// ── Populate dropdowns ────────────────────────────────────────
+function populateSelects(origins, dests) {
+  const os = document.getElementById('sel-origin');
+  const ds = document.getElementById('sel-dest');
+
+  const prevO = os.value;
+  const prevD = ds.value;
+
+  os.innerHTML = '<option value="">— select origin —</option>' +
+    origins.map(o => `<option value="${o}"${o===prevO?' selected':''}>${o}</option>`).join('');
+  ds.innerHTML = '<option value="">— select destination —</option>' +
+    dests.map(d => `<option value="${d}"${d===prevD?' selected':''}>${d}</option>`).join('');
+}
+
+// ── Meta bar ──────────────────────────────────────────────────
+function updateMetaBar(json) {
+  const carriers = [...new Set(RATES.map(r => r.carrier))];
+  document.getElementById('meta-rates').textContent    = `${json.rateCount} lanes`;
+  document.getElementById('meta-carriers').textContent = `${carriers.length} carriers`;
+  const updated = json.updatedAt
+    ? new Date(json.updatedAt).toLocaleString('en-CA', {dateStyle:'medium', timeStyle:'short'})
+    : '—';
+  document.getElementById('meta-updated').textContent  = `Fetched ${updated}`;
+  document.getElementById('data-meta').style.display   = 'flex';
+  document.getElementById('hdr-count').textContent     = `${carriers.length} carriers · ${json.rateCount} lanes`;
+  document.getElementById('hdr-live').style.display    = 'flex';
+}
+
+// ── Search ────────────────────────────────────────────────────
+function doSearch() {
+  const origin = document.getElementById('sel-origin').value;
+  const dest   = document.getElementById('sel-dest').value;
+  if (!origin || !dest) {
+    showEmpty('Select an origin and destination', 'Both fields are required to search.');
+    return;
+  }
+  lastOrigin = origin;
+  lastDest   = dest;
+  renderResults(origin, dest);
+}
+
+function setSort(mode) { sortMode = mode; if (lastOrigin && lastDest) renderResults(lastOrigin, lastDest); }
+function setEquip(e)   { equip    = e;    if (lastOrigin && lastDest) renderResults(lastOrigin, lastDest); }
+
+// ── Render results ────────────────────────────────────────────
+function renderResults(origin, dest) {
+  const matches = RATES.filter(r => r.origin === origin && r.dest === dest);
+  const area    = document.getElementById('results-area');
+
+  if (!matches.length) {
+    area.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⊘</div>
+        <div class="empty-title">No NAC rates found</div>
+        <div class="empty-sub">No carrier covers <strong>${origin}</strong> → <strong>${dest}</strong> in the current dataset.</div>
+      </div>`;
+    return;
+  }
+
+  const sorted = [...matches].sort((a, b) => {
+    if (sortMode === 'rate') {
+      return (a[equip] ?? 999999) - (b[equip] ?? 999999);
+    }
+    return a.carrier.localeCompare(b.carrier);
+  });
+
+  const minRate     = Math.min(...sorted.map(r => r[equip] ?? 999999).filter(v => v < 999999));
+  const originShort = origin.split(',')[0];
+  const destShort   = dest.split(',')[0];
+
+  let html = `
+    <div class="results-header">
+      <div class="route-title">
+        ${originShort}<span class="sep">→</span>${destShort}
+      </div>
+      <div class="carrier-badge">${matches.length} carrier${matches.length !== 1 ? 's' : ''} found</div>
+    </div>
+    <div class="controls-bar">
+      <span class="ctrl-label">Sort</span>
+      <button class="ctrl-btn ${sortMode==='rate'    ? 'active':''}" onclick="setSort('rate')">Lowest rate</button>
+      <button class="ctrl-btn ${sortMode==='carrier' ? 'active':''}" onclick="setSort('carrier')">Carrier A–Z</button>
+      <div class="ctrl-sep"></div>
+      <span class="ctrl-label">Equipment</span>
+      <button class="ctrl-btn ${equip==='r20'   ? 'active':''}" onclick="setEquip('r20')">20'</button>
+      <button class="ctrl-btn ${equip==='r40'   ? 'active':''}" onclick="setEquip('r40')">40'</button>
+      <button class="ctrl-btn ${equip==='r40hc' ? 'active':''}" onclick="setEquip('r40hc')">40'HC</button>
+    </div>`;
+
+  sorted.forEach(r => {
+    const isLowest   = (r[equip] ?? 999999) === minRate && minRate < 999999;
+    const expired    = r.validTo && new Date(r.validTo) < new Date();
+    const addSurges  = ADDITIONAL_SURGES[r.carrier] || [];
+    const incCodes   = INCLUDED_CODES[r.carrier]    || [];
+    const surge20    = SURGE_TOTALS[r.carrier]?.[20]      || 0;
+    const surge40hc  = SURGE_TOTALS[r.carrier]?.['40hc']  || 0;
+
+    const fmt = n => (n === null || n === undefined) ? '—' : '$' + Number(n).toLocaleString('en-US');
+
+    html += `
+    <div class="card${isLowest ? ' lowest' : ''}" data-carrier="${r.carrier}">
+      <div class="card-header">
+        <div class="carrier-info">
+          <span class="carrier-name">${r.carrier}</span>
+          ${isLowest ? '<span class="lowest-tag">lowest</span>'    : ''}
+          ${expired  ? '<span class="expired-tag">⚠ expired</span>' : ''}
+        </div>
+        <div class="route-path">
+          <span class="route-node">${r.origin.split(',')[0]}</span>
+          <span class="route-arrow">→</span>
+          <span class="route-node">${r.gateway.split(',')[0]}</span>
+          <span class="route-arrow">→</span>
+          <span class="route-node">${r.dest.split(',')[0]} (${r.mode})</span>
+        </div>
+        <a href="${r.url}" target="_blank" rel="noopener" class="verify-link">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M9 2h5v5M14 2L8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Verify
+        </a>
+      </div>
+      <div class="rate-block">
+        <div class="rate-grid">
+          <div class="rate-cell">
+            <div class="rate-size">20'</div>
+            <div class="rate-amount${equip==='r20' ? ' highlight' : ''}">${fmt(r.r20)}</div>
+            <div class="rate-sub">USD base freight</div>
+          </div>
+          <div class="rate-cell">
+            <div class="rate-size">40'</div>
+            <div class="rate-amount${equip==='r40' ? ' highlight' : ''}">${fmt(r.r40)}</div>
+            <div class="rate-sub">USD base freight</div>
+          </div>
+          <div class="rate-cell">
+            <div class="rate-size">40'HC</div>
+            <div class="rate-amount${equip==='r40hc' ? ' highlight' : ''}">${fmt(r.r40hc)}</div>
+            <div class="rate-sub">USD base freight</div>
+          </div>
+          <div class="rate-meta">
+            <strong>Contract</strong>${r.contract}
+            <br><strong>Valid to</strong>${r.validTo || 'N/A'}
+            ${surge20 > 0 ? `<br><strong>Add. surcharges</strong>+${fmt(surge20)} (20') / +${fmt(surge40hc)} (40'HC)` : ''}
+          </div>
+        </div>
+        <div class="surcharge-row">
+          <span class="surge-label">Included</span>
+          ${incCodes.length
+            ? incCodes.map(c => `<span class="surge-tag inc">${c}</span>`).join('')
+            : '<span style="font-size:11px;color:var(--muted)">none specified</span>'
+          }
+          <span class="surge-label" style="margin-left:8px">Additional</span>
+          ${addSurges.length
+            ? addSurges.map(s => `<span class="surge-tag add">${s.code}</span>`).join('')
+            : '<span style="font-size:11px;color:var(--muted)">check tariff</span>'
+          }
+        </div>
+      </div>
+    </div>`;
+  });
+
+  area.innerHTML = html;
+}
+
+// ── UI helpers ────────────────────────────────────────────────
+function showLoader() {
+  document.getElementById('results-area').innerHTML = `
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+      <div class="loading-text">Fetching live rates from Google Sheets…</div>
+    </div>`;
+  document.getElementById('error-box').style.display = 'none';
+}
+function hideLoader() {
+  const area = document.getElementById('results-area');
+  if (area.querySelector('.loading-overlay')) {
+    area.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⬡</div>
+        <div class="empty-title">Select an origin and destination</div>
+        <div class="empty-sub">All applicable NAC rates across all carriers will appear here.</div>
+      </div>`;
+  }
+}
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  box.innerHTML = msg; box.style.display = 'block';
+}
+function showEmpty(title, sub) {
+  document.getElementById('results-area').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">⬡</div>
+      <div class="empty-title">${title}</div>
+      <div class="empty-sub">${sub}</div>
+    </div>`;
+}
+
+// Auto-search when both dropdowns are filled
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('sel-origin').addEventListener('change', () => {
+    if (document.getElementById('sel-dest').value) doSearch();
+  });
+  document.getElementById('sel-dest').addEventListener('change', () => {
+    if (document.getElementById('sel-origin').value) doSearch();
+  });
+});
+</script>
+</body>
+</html>
