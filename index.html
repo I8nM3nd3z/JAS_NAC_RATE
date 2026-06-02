@@ -430,20 +430,6 @@
   .card[data-carrier="Hapag-Lloyd"] .carrier-name { color: var(--hapag); }
   .card[data-carrier="MSC"]         .carrier-name { color: var(--msc); }
   .card[data-carrier="ONE"]         .carrier-name { color: var(--one); }
-
-  /* ── Update banner ── */
-  .update-banner {
-    font-size: 12px;
-    color: var(--muted);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 8px 14px;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
   .update-banner code {
     font-family: var(--mono);
     font-size: 11px;
@@ -609,20 +595,6 @@
     </span>
   </div>
 
-  <!-- ── UPDATE BANNER ── -->
-  <div class="update-banner">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0">
-      <path d="M8 1.5A6.5 6.5 0 1 0 14.5 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M11 1l3.5 3L11 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Rates are live from Google Sheets. To update: edit the carrier tabs in the sheet — changes reflect immediately on next load or Refresh.
-    &nbsp; Contracts: &nbsp;
-    <code>YJASB0000009</code> &nbsp;
-    <code>S26NGN086</code> &nbsp;
-    <code>R83626040012094</code> &nbsp;
-    <code>GCM0002N26</code>
-  </div>
-
   <!-- ── SEARCH PANEL ── -->
   <div class="search-panel">
     <div class="search-info">
@@ -669,12 +641,17 @@
 </footer>
 
 <script>
-// ════════════════════════════════════════════════════════════════
-// CONFIGURATION — paste your Apps Script Web App URL here
-// ════════════════════════════════════════════════════════════════
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJpQtyZcuR-KJMZzc_kDqsFiZn0_bkt7HIRXF5blyb_uszeJLxsd05thUByrcT8A3pAQ/exec";
-const SECRET_KEY      = "alexander";
-// ════════════════════════════════════════════════════════════════
+// ── Encoded config ───────────────────────────────────────────
+const _s = 'j4sN4cR4t3T00l2026';
+const _u = 'AkAHPkdZfRsHUCZZQBgcV11ZDVgWYFcMPxsZUjdCXx8dQx13IVIKLVYUGEQlRy1qUxlgHXl8J24JLWsIFkUHdT1qXlxtUllCXXw6HGwlZ1YYSjZvRR9IVXh6EkcXfgEXOmE2SiZTZFRzA0J3OxsWNlEA';
+const _k = 'C1gWNlUNNlEG';
+function _d(enc, s) {
+  const b = atob(enc);
+  return Array.from(b).map((c,i) => String.fromCharCode(c.charCodeAt(0) ^ s.charCodeAt(i % s.length))).join('');
+}
+const APPS_SCRIPT_URL = _d(_u, _s);
+const SECRET_KEY      = _d(_k, _s);
+// ─────────────────────────────────────────────────────────────
 
 let RATES      = [];
 let SURCHARGES = [];
